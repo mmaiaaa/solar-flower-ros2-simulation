@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="green_solar_world">
+
+    <!-- Physics settings -->
+    <physics name="default_physics" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Sky/background settings -->
+    <scene>
+      <ambient>0.55 0.65 0.55 1</ambient>
+      <background>0.55 0.75 0.95 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Directional sunlight -->
+    <light type="directional" name="sunlight">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>1.0 0.92 0.65 1</diffuse>
+      <specular>0.5 0.5 0.4 1</specular>
+      <attenuation>
+        <range>100</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.6 -0.4 -1</direction>
+    </light>
+
+    <!-- Green ground plane -->
+    <model name="green_ground">
+      <static>true</static>
+      <link name="ground_link">
+        <collision name="ground_collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>20 20</size>
+            </plane>
+          </geometry>
+        </collision>
+
+        <visual name="ground_visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>20 20</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.16 0.42 0.16 1</ambient>
+            <diffuse>0.22 0.62 0.22 1</diffuse>
+            <specular>0.03 0.05 0.03 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Visible sun object -->
+    <model name="visible_sun">
+      <static>true</static>
+      <pose>5 -4 5 0 0 0</pose>
+      <link name="sun_link">
+        <visual name="sun_visual">
+          <geometry>
+            <sphere>
+              <radius>0.45</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>1.0 0.75 0.05 1</ambient>
+            <diffuse>1.0 0.75 0.05 1</diffuse>
+            <emissive>1.0 0.65 0.0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
