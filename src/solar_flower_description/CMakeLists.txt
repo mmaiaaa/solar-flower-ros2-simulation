@@ -27,6 +27,7 @@ install(
   PROGRAMS
    scripts/solar_flower_motion.py
    scripts/solar_flower_gazebo_motion.py
+   scripts/solar_flower_control_gui.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
