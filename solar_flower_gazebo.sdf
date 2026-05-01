@@ -364,6 +364,12 @@
       <topic>/blue_petal_cmd_pos</topic>
     </plugin>
 
+        <!-- Anchor the solar flower base to the Gazebo world -->
+    <joint name="world_to_base_fixed" type="fixed">
+      <parent>world</parent>
+      <child>base_footprint</child>
+    </joint>
+
     <plugin filename="libgz-sim-joint-position-controller-system.so"
             name="gz::sim::systems::JointPositionController">
       <joint_name>green_petal_joint</joint_name>

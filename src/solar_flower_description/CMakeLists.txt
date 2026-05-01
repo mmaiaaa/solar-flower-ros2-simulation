@@ -24,7 +24,9 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  PROGRAMS scripts/solar_flower_motion.py
+  PROGRAMS
+   scripts/solar_flower_motion.py
+   scripts/solar_flower_gazebo_motion.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
