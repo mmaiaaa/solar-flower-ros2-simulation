@@ -1,9 +1,22 @@
 <?xml version="1.0"?>
 <robot name="solar_flower" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <!-- Mesh scale: Fusion STL exported in mm, ROS uses meters -->
+<!-- Simple inertial macro for Gazebo spawning -->
+<xacro:macro name="simple_inertial" params="mass ixx iyy izz">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="${mass}"/>
+    <inertia
+      ixx="${ixx}" ixy="0.0" ixz="0.0"
+      iyy="${iyy}" iyz="0.0"
+      izz="${izz}"/>
+  </inertial>
+</xacro:macro>
+  
+<!-- Mesh scale: Fusion STL exported in mm, ROS uses meters -->
   <xacro:property name="mesh_scale" value="0.001 0.001 0.001"/>
-  <link name="base_footprint"/>
-
+  <link name="base_footprint">
+   <xacro:simple_inertial mass="0.001" ixx="0.000001" iyy="0.000001" izz="0.000001"/>
+  </link>
 <joint name="base_footprint_to_base_link" type="fixed">
   <parent link="base_footprint"/>
   <child link="base_link"/>
@@ -12,6 +25,7 @@
 
   <!-- Base link -->
   <link name="base_link">
+   <xacro:simple_inertial mass="0.25" ixx="0.0001" iyy="0.0001" izz="0.0001"/>
    <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
@@ -26,7 +40,9 @@
   
   <!-- Azimuth link -->
   <link name="azimuth_link">
-    <visual>
+   <xacro:simple_inertial mass="0.15" ixx="0.00008" iyy="0.00008" izz="0.00008"/>
+
+   <visual>
       <geometry>
         <mesh filename="package://solar_flower_description/meshes/azimuth_link.stl" scale="${mesh_scale}"/>
       </geometry>
@@ -38,6 +54,7 @@
 
   <!-- Tilt link -->
   <link name="tilt_link">
+   <xacro:simple_inertial mass="0.20" ixx="0.0001" iyy="0.0001" izz="0.0001"/>
    <visual>
     <origin xyz="-0.0325 -0.17535 0" rpy="0 0 0"/>
     <geometry>
@@ -51,6 +68,7 @@
  
   <!-- Red petal -->
   <link name="red_petal_link">
+   <xacro:simple_inertial mass="0.05" ixx="0.00002" iyy="0.00002" izz="0.00002"/>
    <visual>
     <origin xyz="0 -0.2243 0" rpy="0 0 0"/>
     <geometry>
@@ -64,6 +82,7 @@
 
   <!-- Blue petal -->
   <link name="blue_petal_link">
+   <xacro:simple_inertial mass="0.05" ixx="0.00002" iyy="0.00002" izz="0.00002"/>
    <visual>
     <origin xyz="0 -0.2353 0" rpy="0 0 0"/>
     <geometry>
@@ -77,6 +96,7 @@
   
   <!-- Green petal -->
   <link name="green_petal_link">
+   <xacro:simple_inertial mass="0.05" ixx="0.00002" iyy="0.00002" izz="0.00002"/>
    <visual>
     <origin xyz="0 -0.2463 0" rpy="0 0 0"/>
     <geometry>

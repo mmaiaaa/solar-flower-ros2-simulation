@@ -62,12 +62,12 @@
     <!-- Visible sun object -->
     <model name="visible_sun">
       <static>true</static>
-      <pose>5 -4 5 0 0 0</pose>
+      <pose>1.2 -0.8 1.4 0 0 0</pose>
       <link name="sun_link">
         <visual name="sun_visual">
           <geometry>
             <sphere>
-              <radius>0.45</radius>
+              <radius>0.15</radius>
             </sphere>
           </geometry>
           <material>
