@@ -151,4 +151,79 @@
   <limit lower="-1.309" upper="0" effort="5" velocity="1.0"/>
  </joint>
 
+  <!-- Gazebo joint position controllers -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>azimuth_joint</joint_name>
+      <joint_index>0</joint_index>
+      <p_gain>5.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+      <topic>/azimuth_cmd_pos</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>tilt_joint</joint_name>
+      <joint_index>0</joint_index>
+      <p_gain>5.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+      <topic>/tilt_cmd_pos</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>red_petal_joint</joint_name>
+      <joint_index>0</joint_index>
+      <p_gain>5.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+      <topic>/red_petal_cmd_pos</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>blue_petal_joint</joint_name>
+      <joint_index>0</joint_index>
+      <p_gain>5.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+      <topic>/blue_petal_cmd_pos</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>green_petal_joint</joint_name>
+      <joint_index>0</joint_index>
+      <p_gain>5.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+      <topic>/green_petal_cmd_pos</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+   <static>true</static>
+  </gazebo>
+
 </robot>
