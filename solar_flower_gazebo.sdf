@@ -370,6 +370,9 @@
       <child>base_footprint</child>
     </joint>
 
+
+
+
     <plugin filename="libgz-sim-joint-position-controller-system.so"
             name="gz::sim::systems::JointPositionController">
       <joint_name>green_petal_joint</joint_name>

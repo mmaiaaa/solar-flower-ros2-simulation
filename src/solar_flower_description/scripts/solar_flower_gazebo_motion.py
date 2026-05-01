@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import math
+import os
+import subprocess
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64
@@ -17,6 +19,7 @@ class SolarFlowerGazeboMotion(Node):
             "red_petal_joint": "/red_petal_cmd_pos",
             "blue_petal_joint": "/blue_petal_cmd_pos",
             "green_petal_joint": "/green_petal_cmd_pos",
+            "sun_joint": "/sun_cmd_pos",
         }
 
         self.cmd_publishers = {
@@ -30,6 +33,7 @@ class SolarFlowerGazeboMotion(Node):
             "red_petal_joint": 0.0,
             "blue_petal_joint": 0.0,
             "green_petal_joint": 0.0,
+            "sun_joint": 0.0,
         }
 
         self.deployed_pose = {
@@ -38,6 +42,7 @@ class SolarFlowerGazeboMotion(Node):
             "red_petal_joint": 0.0,
             "blue_petal_joint": 0.0,
             "green_petal_joint": 0.0,
+            "sun_joint": 0.0,
         }
 
         self.folded_pose = {
@@ -46,11 +51,13 @@ class SolarFlowerGazeboMotion(Node):
             "red_petal_joint": -3.142,
             "blue_petal_joint": -2.094,
             "green_petal_joint": -1.309,
+            "sun_joint": 0.0,
         }
 
         self.mode = "stop"
         self.target_pose = self.deployed_pose.copy()
         self.time = 0.0
+        self.sun_update_counter = 0
 
         self.create_service(Trigger, "/deploy_flower", self.deploy_callback)
         self.create_service(Trigger, "/fold_flower", self.fold_callback)
@@ -83,6 +90,7 @@ class SolarFlowerGazeboMotion(Node):
         self.positions["red_petal_joint"] = 0.0
         self.positions["blue_petal_joint"] = 0.0
         self.positions["green_petal_joint"] = 0.0
+        self.positions["sun_joint"] = 0.7 * math.sin(0.25 * self.time)
 
         response.success = True
         response.message = "Starting Gazebo sun-tracking motion."
@@ -105,16 +113,50 @@ class SolarFlowerGazeboMotion(Node):
                 self.positions[joint] += step if error > 0 else -step
 
     def update_sun_tracking(self):
-        self.time += 0.02
+     self.time += 0.02
 
-        # Representative sun-tracking motion.
-        self.positions["azimuth_joint"] = 1.2 * math.sin(0.25 * self.time)
-        self.positions["tilt_joint"] = 0.25 + 0.18 * math.sin(0.25 * self.time + 0.8)
+     # Move visible sun marker in Gazebo
+     self.move_sun_marker()
 
-        # Petals stay deployed during tracking.
-        self.positions["red_petal_joint"] = 0.0
-        self.positions["blue_petal_joint"] = 0.0
-        self.positions["green_petal_joint"] = 0.0
+     # Representative solar tracking motion
+     self.positions["azimuth_joint"] = 1.2 * math.sin(0.25 * self.time)
+     self.positions["tilt_joint"] = 0.25 + 0.18 * math.sin(0.25 * self.time + 0.8)
+
+     # Petals remain deployed during tracking
+     self.positions["red_petal_joint"] = 0.0
+     self.positions["blue_petal_joint"] = 0.0
+     self.positions["green_petal_joint"] = 0.0
+
+
+    def move_sun_marker(self):
+     self.sun_update_counter += 1
+
+     # Run pose update at 10 Hz instead of every control tick
+     if self.sun_update_counter % 5 != 0:
+        return
+
+     sun_x = 1.4 * math.sin(0.25 * self.time)
+     sun_y = -0.8
+     sun_z = 1.3 + 0.4 * math.cos(0.25 * self.time)
+
+     request = (
+        f'name: "moving_sun" '
+        f'position {{x: {sun_x:.3f} y: {sun_y:.3f} z: {sun_z:.3f}}}'
+     )
+
+     subprocess.run(
+        [
+            "gz", "service",
+            "-s", "/world/green_solar_world/set_pose",
+            "--reqtype", "gz.msgs.Pose",
+            "--reptype", "gz.msgs.Boolean",
+            "--timeout", "100",
+            "--req", request,
+        ],
+        env={**os.environ, "GZ_PARTITION": "solar_flower_test"},
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+     )
 
     def publish_commands(self):
         for joint, publisher in self.cmd_publishers.items():
@@ -141,4 +183,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-

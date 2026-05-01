@@ -59,15 +59,16 @@
       </link>
     </model>
 
-    <!-- Visible sun object -->
-    <model name="visible_sun">
+    <!-- Visible sun marker controlled by Gazebo pose commands -->
+    <model name="moving_sun">
       <static>true</static>
-      <pose>1.2 -0.8 1.4 0 0 0</pose>
+      <pose>1.4 -0.8 1.4 0 0 0</pose>
+
       <link name="sun_link">
         <visual name="sun_visual">
           <geometry>
             <sphere>
-              <radius>0.15</radius>
+              <radius>0.16</radius>
             </sphere>
           </geometry>
           <material>
