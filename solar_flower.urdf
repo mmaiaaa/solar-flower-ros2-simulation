@@ -214,7 +214,4 @@
       <topic>/green_petal_cmd_pos</topic>
     </plugin>
   </gazebo>
-  <gazebo>
-    <static>true</static>
-  </gazebo>
 </robot>
