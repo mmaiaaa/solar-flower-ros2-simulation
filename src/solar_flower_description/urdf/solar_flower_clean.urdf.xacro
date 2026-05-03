@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<robot name="solar_flower_clean" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    Fusion coordinate convention:
+    X = horizontal
+    Y = vertical/upright
+    Z = depth
+
+    ROS/RViz/Gazebo convention:
+    X = horizontal
+    Y = depth
+    Z = vertical/upright
+
+    Conversion used:
+    ROS_X = Fusion_X
+    ROS_Y = -Fusion_Z
+    ROS_Z = Fusion_Y
+
+    Mesh rotation:
+    rpy = 1.5708 0 0
+  -->
+
+  <xacro:property name="mesh_scale" value="0.001 0.001 0.001"/>
+  <xacro:property name="fusion_to_ros_rpy" value="1.5708 0 0"/>
+
+  <xacro:macro name="basic_inertial" params="mass">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="0.001"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.001"
+        iyz="0.0"
+        izz="0.001"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- World frame -->
+  <link name="world"/>
+
+  <!-- Base link fixed to world -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/base_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/base_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.25"/>
+  </link>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Azimuth link -->
+  <link name="azimuth_link">
+    <visual>
+      <!-- Fusion azimuth hinge: (0, 38.70, 0) mm
+           ROS offset: (0, 0, -0.03870) m before mesh rotation correction -->
+      <origin xyz="0 0 -0.03870" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/azimuth_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.03870" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/azimuth_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.20"/>
+  </link>
+
+  <joint name="azimuth_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="azimuth_link"/>
+    <!-- Fusion: (0, 38.70, 0) mm -> ROS: (0, 0, 0.03870) m -->
+    <origin xyz="0 0 0.03870" rpy="0 0 0"/>
+    <!-- Fusion -Y axis becomes ROS -Z axis -->
+    <axis xyz="0 0 -1"/>
+    <limit lower="-1.22" upper="1.57" effort="2.0" velocity="1.0"/>
+  </joint>
+
+  <!-- Tilt link -->
+  <link name="tilt_link">
+    <visual>
+      <!-- Fusion tilt hinge: (32.5, 175.35, 0) mm
+           Mesh offset relative to its hinge in converted ROS coordinates -->
+      <origin xyz="-0.0325 0 -0.17535" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/tilt_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="-0.0325 0 -0.17535" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/tilt_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.15"/>
+  </link>
+
+  <joint name="tilt_joint" type="revolute">
+    <parent link="azimuth_link"/>
+    <child link="tilt_link"/>
+    <!-- 
+      Tilt relative to azimuth:
+      Fusion relative = (32.5, 136.65, 0) mm
+      ROS relative = (0.0325, 0, 0.13665) m
+    -->
+    <origin xyz="0.0325 0 0.13665" rpy="0 0 0"/>
+    <!-- Fusion -X remains ROS -X -->
+    <axis xyz="-1 0 0"/>
+    <!-- Tilt now moves both directions -->
+    <limit lower="-0.524" upper="0.524" effort="2.0" velocity="1.0"/>
+  </joint>
+
+  <!-- Red petal -->
+  <link name="red_petal_link">
+    <visual>
+      <origin xyz="0 0 -0.2243" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/red_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.2243" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/red_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.06"/>
+  </link>
+
+  <joint name="red_petal_joint" type="revolute">
+    <parent link="tilt_link"/>
+    <child link="red_petal_link"/>
+    <!-- Fusion relative: (-32.5, 48.95, 0) mm
+         ROS relative: (-0.0325, 0, 0.04895) m -->
+    <origin xyz="-0.0325 0 0.04895" rpy="0 0 0"/>
+    <!-- Petals fold around hinge line, not around vertical axis -->
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.142" upper="0.0" effort="1.0" velocity="1.0"/>
+  </joint>
+
+  <!-- Blue petal -->
+  <link name="blue_petal_link">
+    <visual>
+      <origin xyz="0 0 -0.2353" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/blue_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.2353" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/blue_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.05"/>
+  </link>
+
+  <joint name="blue_petal_joint" type="revolute">
+    <parent link="tilt_link"/>
+    <child link="blue_petal_link"/>
+    <!-- Fusion relative: (-32.5, 59.95, 0) mm
+         ROS relative: (-0.0325, 0, 0.05995) m -->
+    <origin xyz="-0.0325 0 0.05995" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.094" upper="0.0" effort="1.0" velocity="1.0"/>
+  </joint>
+
+  <!-- Green petal -->
+  <link name="green_petal_link">
+    <visual>
+      <origin xyz="0 0 -0.2463" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/green_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.2463" rpy="${fusion_to_ros_rpy}"/>
+      <geometry>
+        <mesh filename="package://solar_flower_description/meshes/clean/green_petal_link.stl"
+              scale="${mesh_scale}"/>
+      </geometry>
+    </collision>
+
+    <xacro:basic_inertial mass="0.05"/>
+  </link>
+
+  <joint name="green_petal_joint" type="revolute">
+    <parent link="tilt_link"/>
+    <child link="green_petal_link"/>
+    <!-- Fusion relative: (-32.5, 70.95, 0) mm
+         ROS relative: (-0.0325, 0, 0.07095) m -->
+    <origin xyz="-0.0325 0 0.07095" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.309" upper="0.0" effort="1.0" velocity="1.0"/>
+  </joint>
+
+</robot>
