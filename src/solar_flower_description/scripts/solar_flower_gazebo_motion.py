@@ -58,16 +58,39 @@ class SolarFlowerGazeboMotion(Node):
         self.target_pose = self.deployed_pose.copy()
         self.time = 0.0
         self.sun_update_counter = 0
+        self.external_azimuth_command = 0.0
+        self.external_tilt_command = 0.25
+        self.use_external_tracking = True
 
         self.create_service(Trigger, "/deploy_flower", self.deploy_callback)
         self.create_service(Trigger, "/fold_flower", self.fold_callback)
         self.create_service(Trigger, "/track_sun", self.track_callback)
         self.create_service(Trigger, "/stop_motion", self.stop_callback)
 
+        self.create_subscription(
+            Float64,
+            "/servo1/command_rad",
+            self.servo1_command_callback,
+            10
+        )
+
+        self.create_subscription(
+            Float64,
+            "/servo2/command_rad",
+            self.servo2_command_callback,
+            10
+        )
+
         self.timer = self.create_timer(0.02, self.update)
 
         self.get_logger().info("Solar flower Gazebo motion node started.")
         self.get_logger().info("Services: /deploy_flower, /fold_flower, /track_sun, /stop_motion")
+
+    def servo1_command_callback(self, msg):
+        self.external_azimuth_command = msg.data
+
+    def servo2_command_callback(self, msg):
+        self.external_tilt_command = msg.data
 
     def deploy_callback(self, request, response):
         self.mode = "pose"
@@ -113,20 +136,24 @@ class SolarFlowerGazeboMotion(Node):
                 self.positions[joint] += step if error > 0 else -step
 
     def update_sun_tracking(self):
-     self.time += 0.02
+        self.time += 0.02
 
-     # Move visible sun marker in Gazebo
-     self.move_sun_marker()
+        # Move visible sun marker in Gazebo
+        self.move_sun_marker()
 
-     # Representative solar tracking motion
-     self.positions["azimuth_joint"] = 1.2 * math.sin(0.25 * self.time)
-     self.positions["tilt_joint"] = 0.25 + 0.18 * math.sin(0.25 * self.time + 0.8)
+        if self.use_external_tracking:
+            # Use commands from tracking_controller_node
+            self.positions["azimuth_joint"] = self.external_azimuth_command
+            self.positions["tilt_joint"] = self.external_tilt_command
+        else:
+            # Fallback scripted tracking motion
+            self.positions["azimuth_joint"] = 1.2 * math.sin(0.25 * self.time)
+            self.positions["tilt_joint"] = 0.25 + 0.18 * math.sin(0.25 * self.time + 0.8)
 
-     # Petals remain deployed during tracking
-     self.positions["red_petal_joint"] = 0.0
-     self.positions["blue_petal_joint"] = 0.0
-     self.positions["green_petal_joint"] = 0.0
-
+        # Petals remain deployed during tracking
+        self.positions["red_petal_joint"] = 0.0
+        self.positions["blue_petal_joint"] = 0.0
+        self.positions["green_petal_joint"] = 0.0
 
     def move_sun_marker(self):
      self.sun_update_counter += 1
